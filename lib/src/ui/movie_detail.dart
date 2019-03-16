@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:hello_bloc/src/blocs/Base/bloc_provider.dart';
 import 'package:hello_bloc/src/blocs/movie_detail_bloc.dart';
 import 'package:hello_bloc/src/blocs/movie_detail_bloc_provider.dart';
+import 'package:hello_bloc/src/blocs/movies_bloc.dart';
+import 'package:hello_bloc/src/models/favorite_model.dart';
 import 'package:hello_bloc/src/models/trailer_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class MovieDetail extends StatefulWidget {
+class MovieDetail extends StatelessWidget {
   final posterUrl;
   final description;
   final releaseDate;
@@ -20,49 +26,25 @@ class MovieDetail extends StatefulWidget {
     this.movieId,
   });
 
-  MovieDetailState createState() => MovieDetailState(
-        title: title,
-        posterUrl: posterUrl,
-        description: description,
-        releaseDate: releaseDate,
-        voteAverage: voteAverage,
-        movieId: movieId,
-      );
-}
+  // @override
+  // void didChangeDependencies() {
+  //   bloc = MovieDetailBlocProvider.of(context);
+  //   bloc.fetchTrailersById(movieId);
+  //   super.didChangeDependencies();
+  // }
 
-class MovieDetailState extends State<MovieDetail> {
-  final posterUrl;
-  final description;
-  final releaseDate;
-  final String title;
-  final String voteAverage;
-  final int movieId;
-  MovieDetailBloc bloc;
-
-  MovieDetailState({
-    this.title,
-    this.posterUrl,
-    this.description,
-    this.releaseDate,
-    this.voteAverage,
-    this.movieId,
-  });
-
-  @override
-  void didChangeDependencies() {
-    bloc = MovieDetailBlocProvider.of(context);
-    bloc.fetchTrailersById(movieId);
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    bloc.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   bloc.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    var bloc = BlocProvider.of<MovieDetailBloc>(context);
+    var movieBloc = BlocProvider.of<MoviesBloc>(context);
+    bloc.fetchTrailersById(movieId);
+
     return Scaffold(
       body: SafeArea(
         top: false,
@@ -126,7 +108,11 @@ class MovieDetailState extends State<MovieDetail> {
                         ),
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => bloc.addFavorite(movieId),
+                            onTap: () => movieBloc.addFavorite(
+                                new FavoriteModel(
+                                    id: this.movieId,
+                                    title: this.title,
+                                    posterUrl: this.posterUrl)),
                             child: Container(
                                 alignment: Alignment.centerRight,
                                 child: StreamBuilder(
@@ -227,11 +213,24 @@ class MovieDetailState extends State<MovieDetail> {
     return Expanded(
       child: Column(
         children: <Widget>[
-          Container(
-            margin: EdgeInsets.all(5.0),
-            height: 100.0,
-            color: Colors.grey,
-            child: Center(child: Icon(Icons.play_circle_filled)),
+          InkWell(
+            onTap: () {
+              _launchURL(data.results[index].url);
+            },
+            child: Container(
+              margin: EdgeInsets.all(5.0),
+              height: 100.0,
+              color: Colors.grey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: Icon(Icons.play_circle_filled)),
+                  ),
+                ],
+              ),
+            ),
           ),
           Text(
             data.results[index].name,
@@ -241,5 +240,13 @@ class MovieDetailState extends State<MovieDetail> {
         ],
       ),
     );
+  }
+
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

@@ -53,4 +53,6 @@ class _Result {
   int get size => _size;
 
   String get type => _type;
+
+  String get url => "https://www.youtube.com/watch?v=$key";
 }

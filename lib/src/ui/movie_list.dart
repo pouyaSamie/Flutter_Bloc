@@ -1,33 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:hello_bloc/src/blocs/Base/bloc_provider.dart';
+import 'package:hello_bloc/src/blocs/movie_detail_bloc.dart';
 import 'package:hello_bloc/src/blocs/movie_detail_bloc_provider.dart';
 import 'package:hello_bloc/src/models/item_model.dart';
 import 'package:hello_bloc/src/ui/movie_detail.dart';
 import '../blocs/movies_bloc.dart';
 
-class MovieList extends StatefulWidget {
+class MovieList extends StatelessWidget {
   MovieList({Key key}) : super(key: key);
 
   @override
-  MovieListState createState() {
-    return new MovieListState();
-  }
-}
-
-class MovieListState extends State<MovieList> {
-  @override
-  void initState() {
-    super.initState();
-    bloc.fetchAllMovies();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    bloc.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    var bloc = BlocProvider.of<MoviesBloc>(context);
+    bloc.fetchAllMovies();
     return Scaffold(
         appBar: AppBar(
           title: Text('Popular Movies'),
@@ -82,17 +67,17 @@ class MovieListState extends State<MovieList> {
                 'https://image.tmdb.org/t/p/w185${snapshot.data.results[index].poster_path}',
                 fit: BoxFit.cover,
               ),
-              onTap: () => openDetailPage(snapshot.data, index),
+              onTap: () => openDetailPage(context, snapshot.data, index),
             ),
           );
         });
   }
 
-  openDetailPage(ItemModel data, int index) {
+  openDetailPage(context, ItemModel data, int index) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return MovieDetailBlocProvider(
+        return BlocProvider<MovieDetailBloc>(
           child: MovieDetail(
             title: data.results[index].title,
             posterUrl: data.results[index].backdrop_path,
@@ -101,6 +86,7 @@ class MovieListState extends State<MovieList> {
             voteAverage: data.results[index].vote_average.toString(),
             movieId: data.results[index].id,
           ),
+          bloc: MovieDetailBloc(),
         );
       }),
     );
