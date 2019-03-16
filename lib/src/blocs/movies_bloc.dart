@@ -16,7 +16,7 @@ class MoviesBloc extends BaseBloc {
   Function(FavoriteModel) get addToFavorite => _updatefavortite.sink.add;
 
   Function(int) get isFavorite => _isfavorite.sink.add;
-  Observable<bool> get favoriteStatus =>
+  Observable<bool> get getFavoriteStatus =>
       _isfavorite.map((data) => _favoritList.any((x) => x.id == data));
 
   MoviesBloc() {
@@ -37,15 +37,13 @@ class MoviesBloc extends BaseBloc {
   void addFavorite(FavoriteModel movie) {
     if (_favoritList.any((x) => x.id == movie.id)) {
       _favoritList.removeWhere((m) => m.id == movie.id);
-      print("deleted");
     } else
       _favoritList.add(movie);
 
-    print(_favoritList.length);
-    for (var item in _favoritList) {
-      print(item.title);
-    }
+    _notify(movie);
+  }
 
+  _notify(FavoriteModel movie) {
     isFavorite(movie.id);
   }
 }

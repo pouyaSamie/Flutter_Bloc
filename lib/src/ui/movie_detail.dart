@@ -117,7 +117,7 @@ class MovieDetail extends StatelessWidget {
                             child: Container(
                                 alignment: Alignment.centerRight,
                                 child: StreamBuilder<bool>(
-                                  stream: movieBloc.favoriteStatus,
+                                  stream: movieBloc.getFavoriteStatus,
                                   builder: (BuildContext context,
                                       AsyncSnapshot<bool> snapshot) {
                                     if (snapshot.hasData) {
