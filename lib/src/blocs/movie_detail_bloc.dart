@@ -10,13 +10,14 @@ class MovieDetailBloc extends BaseBloc {
   final _movieId = PublishSubject<int>();
   final _trailers = BehaviorSubject<Future<TrailerModel>>();
   final _toggleFavorite = BehaviorSubject<int>();
-  final _isFavoriteSubject = BehaviorSubject<bool>();
+
 
   Function(int) get fetchTrailersById => _movieId.sink.add;
   Observable<Future<TrailerModel>> get movieTrailers => _trailers.stream;
 
   Function(int) get toggleFavorite => _toggleFavorite.sink.add;
-  Observable<bool> get isFavorite => _isFavoriteSubject.stream;
+
+
   MovieDetailBloc() {
     _movieId.stream.transform(_itemTransformer()).pipe(_trailers);
   }
@@ -27,7 +28,7 @@ class MovieDetailBloc extends BaseBloc {
     await _trailers.drain();
     _trailers.close();
     _toggleFavorite.close();
-    _isFavoriteSubject.close();
+ 
   }
 
   _itemTransformer() {

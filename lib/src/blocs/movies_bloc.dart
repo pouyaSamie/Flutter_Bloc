@@ -7,46 +7,45 @@ import 'package:rxdart/rxdart.dart';
 class MoviesBloc extends BaseBloc {
   final _repository = Repository();
   final _moviesFetcher = PublishSubject<ItemModel>();
-  final _favortite = PublishSubject<FavoriteModel>();
-  final _isFavoriteSubject = BehaviorSubject<bool>();
+  final _updatefavortite = PublishSubject<FavoriteModel>();
+  final _isfavorite = BehaviorSubject<int>();
 
   List<FavoriteModel> _favoritList = List<FavoriteModel>();
 
   Observable<ItemModel> get allMovies => _moviesFetcher.stream;
-  Function(FavoriteModel) get addToFavorite => _favortite.sink.add;
+  Function(FavoriteModel) get addToFavorite => _updatefavortite.sink.add;
+
+  Function(int) get isFavorite => _isfavorite.sink.add;
+  Observable<bool> get favoriteStatus =>
+      _isfavorite.map((data) => _favoritList.any((x) => x.id == data));
+
+  MoviesBloc() {
+    _updatefavortite.listen(addFavorite);
+  }
 
   void fetchAllMovies() async {
     ItemModel itemModels = await _repository.fetchAllMovies();
     _moviesFetcher.sink.add(itemModels);
-    _favortite.listen(addFavorite);
   }
 
   void dispose() {
     _moviesFetcher.close();
-    _favortite.close();
-    _isFavoriteSubject.close();
+    _updatefavortite.close();
+    _isfavorite.close();
   }
 
   void addFavorite(FavoriteModel movie) {
-    print(movie);
-    for (var item in _favoritList) {
-      print(item);
-    }
-    print(_favoritList.any((x) => x.id == movie.id));
-
-    if (_favoritList.any((x) => x.id == movie.id))
-      _favoritList.remove(movie);
-    else
+    if (_favoritList.any((x) => x.id == movie.id)) {
+      _favoritList.removeWhere((m) => m.id == movie.id);
+      print("deleted");
+    } else
       _favoritList.add(movie);
 
+    print(_favoritList.length);
     for (var item in _favoritList) {
-      print(item);
+      print(item.title);
     }
 
-    _notify(_favoritList.any((x) => x.id == movie.id));
-  }
-
-  void _notify(bool isfavorite) {
-    _isFavoriteSubject.sink.add(isfavorite);
+    isFavorite(movie.id);
   }
 }

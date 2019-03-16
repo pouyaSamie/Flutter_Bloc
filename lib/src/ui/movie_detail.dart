@@ -43,6 +43,7 @@ class MovieDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     var bloc = BlocProvider.of<MovieDetailBloc>(context);
     var movieBloc = BlocProvider.of<MoviesBloc>(context);
+    movieBloc.isFavorite(movieId);
     bloc.fetchTrailersById(movieId);
 
     return Scaffold(
@@ -115,8 +116,8 @@ class MovieDetail extends StatelessWidget {
                                     posterUrl: this.posterUrl)),
                             child: Container(
                                 alignment: Alignment.centerRight,
-                                child: StreamBuilder(
-                                  stream: bloc.isFavorite,
+                                child: StreamBuilder<bool>(
+                                  stream: movieBloc.favoriteStatus,
                                   builder: (BuildContext context,
                                       AsyncSnapshot<bool> snapshot) {
                                     if (snapshot.hasData) {
