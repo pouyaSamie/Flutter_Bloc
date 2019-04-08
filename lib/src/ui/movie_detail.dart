@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hello_bloc/src/blocs/Base/bloc_provider.dart';
 import 'package:hello_bloc/src/blocs/movie_detail_bloc.dart';
-import 'package:hello_bloc/src/blocs/movie_detail_bloc_provider.dart';
 import 'package:hello_bloc/src/blocs/movies_bloc.dart';
 import 'package:hello_bloc/src/models/favorite_model.dart';
 import 'package:hello_bloc/src/models/trailer_model.dart';
@@ -110,7 +109,7 @@ class MovieDetail extends StatelessWidget {
                         Expanded(
                           child: GestureDetector(
                             onTap: () => movieBloc.addFavorite(
-                                new FavoriteModel(
+                                new FavoriteMovie(
                                     id: this.movieId,
                                     title: this.title,
                                     posterUrl: this.posterUrl)),
